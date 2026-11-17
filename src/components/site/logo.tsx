@@ -6,11 +6,15 @@ export function Logo({
   name = "M&R Homes",
   href = "/",
   inverted = false,
+  showWordmark = true,
+  markClassName = "h-10 sm:h-11",
   className,
 }: {
   name?: string;
   href?: string;
   inverted?: boolean;
+  showWordmark?: boolean;
+  markClassName?: string;
   className?: string;
 }) {
   return (
@@ -20,9 +24,10 @@ export function Logo({
         alt=""
         width={1126}
         height={582}
-        className="h-10 w-auto shrink-0 transition duration-500 group-hover:scale-[1.03] sm:h-11"
+        className={cn(markClassName, "w-auto shrink-0 transition duration-500 group-hover:scale-[1.03]")}
         priority
       />
+      {showWordmark && (
       <span className="hidden min-w-0 flex-col leading-none sm:flex">
         <span
           className={cn(
@@ -41,6 +46,7 @@ export function Logo({
           Home &amp; Lifestyle
         </span>
       </span>
+      )}
     </Link>
   );
 }
