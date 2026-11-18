@@ -5,7 +5,7 @@ A production-ready M&R Homes storefront and admin panel built with Next.js 15, T
 ## Features
 
 - Storefront: homepage, catalog with search/category/price/stock filters, sorting and pagination, product pages with image gallery and reviews, cart, checkout and order confirmation.
-- Accounts: register, login, password reset, profile, password change, saved addresses, order history, reorder and wishlist.
+- Accounts: register, email/password login, Google sign-in, password reset, profile, password change, saved addresses, order history, reorder and wishlist.
 - Payments: Paystack initialize/verify/webhook integration plus a local mock payment flow for development.
 - Admin: dashboard, revenue/traffic charts, products, categories, orders, status timeline, manual payment capture, customers, review moderation, abandoned carts, analytics, email log and store settings.
 - Operations: transactional email with SMTP or console fallback, abandoned-cart reminders, PageView analytics, newsletter subscribers, sitemap and robots.
@@ -72,6 +72,10 @@ The seed creates 33 home, plant and furniture products across 8 categories, plus
 | `SMTP_SECURE` | No | `true` for implicit TLS, usually port 465. |
 | `MAIL_FROM` | No | From header for transactional email. |
 | `SUPPORT_EMAIL` | No | Reply-to/support address used in email templates. |
+| `GOOGLE_CLIENT_ID` | No | Google OAuth client ID for Google sign-in. |
+| `GOOGLE_CLIENT_SECRET` | No | Google OAuth client secret. |
+| `GOOGLE_REDIRECT_URI` | No | Override the callback URL. Defaults to `<origin>/api/auth/google/callback`. |
+| `UPLOAD_DIR` | No | Persistent directory for uploaded product images. Defaults to `./storage/uploads`. |
 
 ## Payments
 
@@ -80,10 +84,21 @@ Mock mode is active when `PAYSTACK_SECRET_KEY` is empty or `PAYSTACK_MOCK=true`.
 Configure the Paystack webhook URL as:
 
 ```text
-https://your-domain.com/api/webhooks/paystack
+https://mandrhomes.com/api/webhooks/paystack
 ```
 
 Enable at least `charge.success` and `charge.failed`. The webhook verifies the `x-paystack-signature` HMAC before updating an order. Payment marking is idempotent and decrements stock once.
+
+## Google sign-in
+
+Create an OAuth 2.0 Client ID (Web application) in the Google Cloud Console and add these authorized redirect URIs:
+
+- `https://mandrhomes.com/api/auth/google/callback`
+- `http://localhost:3000/api/auth/google/callback` (local development)
+
+Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. The callback URL defaults to the current request origin; set
+`GOOGLE_REDIRECT_URI` only when your proxy or custom domain requires an explicit URL. Google accounts are matched by
+verified email, and new accounts are created automatically.
 
 ## Abandoned carts and cron
 
@@ -93,7 +108,7 @@ Schedule a daily or hourly request:
 
 ```bash
 curl -H "Authorization: Bearer $CRON_SECRET" \
-  https://your-domain.com/api/cron/abandoned-carts
+  https://mandrhomes.com/api/cron/abandoned-carts
 ```
 
 The endpoint supports `GET` and `POST`, and rejects requests when `CRON_SECRET` is missing or incorrect. Admins can also trigger reminders manually from `/admin/carts`.
@@ -122,9 +137,10 @@ The storefront tracker posts page views to `/api/track`. A first-party visitor c
 3. Run `npx prisma migrate deploy` during release.
 4. Set Paystack keys and `PAYSTACK_MOCK=false`; configure the webhook.
 5. Configure SMTP for real email delivery.
-6. Run `npm run build` and `npm run start`, or deploy to a Next.js-compatible host.
-7. Seed only if you want demo data. Change or remove demo credentials in production.
-8. Schedule the abandoned-cart cron endpoint.
+6. Mount a persistent disk and set `UPLOAD_DIR` for product images; serverless/ephemeral filesystems will lose uploads.
+7. Run `npm run build` and `npm run start`, or deploy to a Next.js-compatible host.
+8. Seed only if you want demo data. Change or remove demo credentials in production.
+9. Schedule the abandoned-cart cron endpoint.
 
 ## Notes
 

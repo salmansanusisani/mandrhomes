@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
-import { FacebookIcon, InstagramIcon, TikTokIcon, XIcon, YouTubeIcon } from "@/components/site/social-icons";
+import { FacebookIcon, InstagramIcon, TikTokIcon, XIcon } from "@/components/site/social-icons";
 import { getSettings } from "@/lib/settings";
 import { brandCategories } from "@/lib/brand";
 import { Logo } from "@/components/site/logo";
@@ -32,11 +32,6 @@ export async function SiteFooter() {
                 <FacebookIcon className="h-4 w-4" />
               </a>
             )}
-            {settings.youtube && (
-              <a href={settings.youtube} className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-cream/70 transition hover:border-steel hover:bg-steel hover:text-white" aria-label="YouTube" target="_blank" rel="noreferrer">
-                <YouTubeIcon className="h-[18px] w-[18px]" />
-              </a>
-            )}
             {settings.x && (
               <a href={settings.x} className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-cream/70 transition hover:border-steel hover:bg-steel hover:text-white" aria-label="X" target="_blank" rel="noreferrer">
                 <XIcon className="h-3.5 w-3.5" />
@@ -46,6 +41,7 @@ export async function SiteFooter() {
 
           <div className="mt-7 space-y-2.5 text-xs leading-relaxed text-cream/50">
             <p className="flex items-start gap-2.5"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-steel" /> {settings.address}</p>
+            <p className="flex items-start gap-2.5"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-steel" /> {settings.address2}</p>
             <p className="flex items-center gap-2.5"><Mail className="h-3.5 w-3.5 text-steel" /> {settings.supportEmail}</p>
             <p className="flex items-center gap-2.5"><Phone className="h-3.5 w-3.5 text-steel" /> {settings.supportPhone}</p>
           </div>

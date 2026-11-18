@@ -4,8 +4,17 @@ import { Clock, Mail, MapPin, MessageSquare, Phone } from "lucide-react";
 import { getSettings } from "@/lib/settings";
 
 export const metadata: Metadata = {
-  title: "Contact us",
-  description: "Get in touch with the M&R Homes team — we reply within one business day.",
+  title: "Contact us — Abuja & Kano Showrooms",
+  description:
+    "Visit M&R Homes in Abuja or Kano, or contact us about plants, planters, home decor, furniture, delivery and returns across Nigeria. We reply within one business day.",
+  keywords: [
+    "M&R Homes Abuja",
+    "M&R Homes Kano",
+    "home decor showroom Abuja",
+    "plants showroom Kano",
+    "contact M&R Homes",
+  ],
+  alternates: { canonical: "/contact" },
 };
 
 export default async function ContactPage() {
@@ -21,7 +30,7 @@ export default async function ContactPage() {
           business day.
         </p>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
           <a href={`mailto:${settings.supportEmail}`} className="card group p-6 transition hover:border-brand/40">
             <span className="grid h-11 w-11 place-items-center rounded-full bg-brand-soft text-brand"><Mail className="h-5 w-5" /></span>
             <h2 className="mt-4 text-sm font-semibold">Email us</h2>
@@ -35,16 +44,25 @@ export default async function ContactPage() {
             <p className="mt-2 text-xs text-muted">Monday to Friday, 9am – 5pm WAT.</p>
           </a>
           <div className="card p-6">
-            <span className="grid h-11 w-11 place-items-center rounded-full bg-brand-soft text-brand"><MapPin className="h-5 w-5" /></span>
-            <h2 className="mt-4 text-sm font-semibold">Visit</h2>
-            <p className="mt-1 text-sm text-muted">{settings.address}</p>
-            <p className="mt-2 text-xs text-muted">Pickup by appointment only.</p>
-          </div>
-          <div className="card p-6">
             <span className="grid h-11 w-11 place-items-center rounded-full bg-brand-soft text-brand"><Clock className="h-5 w-5" /></span>
             <h2 className="mt-4 text-sm font-semibold">Response times</h2>
             <p className="mt-1 text-sm text-muted">Email: within 1 business day</p>
             <p className="mt-1 text-sm text-muted">Phone: usually under 5 minutes</p>
+          </div>
+          <div className="card p-6 sm:col-span-3">
+            <span className="grid h-11 w-11 place-items-center rounded-full bg-brand-soft text-brand"><MapPin className="h-5 w-5" /></span>
+            <h2 className="mt-4 text-sm font-semibold">Visit our showrooms</h2>
+            <div className="mt-3 grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand">Abuja</p>
+                <p className="mt-1 text-sm text-muted">{settings.address}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand">Kano</p>
+                <p className="mt-1 text-sm text-muted">{settings.address2}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-muted">Pickup by appointment only.</p>
           </div>
         </div>
 

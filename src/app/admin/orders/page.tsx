@@ -5,6 +5,7 @@ import { Filter, Search } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { formatDateTime, formatMoney, formatNumber } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { ClickableRow } from "@/components/admin/clickable-row";
 
 export const metadata: Metadata = { title: "Orders" };
 
@@ -92,7 +93,12 @@ export default async function AdminOrdersPage({
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-sand/20">
+                <ClickableRow
+                  key={order.id}
+                  href={`/admin/orders/${order.id}`}
+                  label={`Open order ${order.number}`}
+                  className="hover:bg-sand/20"
+                >
                   <td><Link href={`/admin/orders/${order.id}`} className="font-semibold text-brand hover:underline">{order.number}</Link></td>
                   <td>
                     <p className="font-medium">{order.customerName}</p>
@@ -103,7 +109,7 @@ export default async function AdminOrdersPage({
                   <td className="font-semibold">{formatMoney(order.total, order.currency)}</td>
                   <td><StatusBadge status={order.status} /></td>
                   <td><StatusBadge status={order.paymentStatus} kind="payment" /></td>
-                </tr>
+                </ClickableRow>
               ))}
               {orders.length === 0 && <tr><td colSpan={7} className="py-14 text-center text-sm text-muted">No orders match these filters.</td></tr>}
             </tbody>

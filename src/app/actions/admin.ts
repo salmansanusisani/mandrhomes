@@ -219,11 +219,15 @@ export async function deleteCategoryAction(formData: FormData) {
 const orderStatusSchema = z.enum(["PENDING", "PAID", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"]);
 
 export async function updateOrderStatusAction(formData: FormData) {
-  await ensureAdmin();
+  const session = await ensureAdmin();
   const id = String(formData.get("id") ?? "");
   const parsed = orderStatusSchema.safeParse(formData.get("status"));
   if (!id || !parsed.success) return;
-  await setOrderStatus(id, parsed.data as OrderStatus);
+  await setOrderStatus(id, parsed.data as OrderStatus, {
+    id: session.id,
+    name: session.name,
+    role: session.role,
+  });
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath("/admin");
@@ -231,7 +235,7 @@ export async function updateOrderStatusAction(formData: FormData) {
 }
 
 export async function markOrderPaidManuallyAction(formData: FormData) {
-  await ensureAdmin();
+  const session = await ensureAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const order = await prisma.order.findUnique({ where: { id } });
@@ -242,7 +246,10 @@ export async function markOrderPaidManuallyAction(formData: FormData) {
     reference = `MANUAL-${randomBytes(6).toString("hex").toUpperCase()}`;
     await prisma.order.update({ where: { id }, data: { paymentReference: reference } });
   }
-  await markOrderPaid(reference, { amountMinor: null });
+  await markOrderPaid(reference, {
+    amountMinor: null,
+    actor: { id: session.id, name: session.name, role: session.role },
+  });
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath("/admin");
@@ -314,19 +321,19 @@ export async function updateSettingsAction(_previous: ActionState, formData: For
   const raw = {
     storeName: formData.get("storeName"),
     tagline: formData.get("tagline"),
-    announcement: formData.get("announcement"),
     currency: formData.get("currency"),
     shippingFlat: formData.get("shippingFlat"),
+    abujaShippingFee: formData.get("abujaShippingFee"),
     freeShippingThreshold: formData.get("freeShippingThreshold"),
     taxRate: Number(formData.get("taxRate") ?? 0) / 100,
     supportEmail: formData.get("supportEmail"),
     supportPhone: formData.get("supportPhone"),
     address: formData.get("address"),
+    address2: formData.get("address2"),
     instagram: formData.get("instagram") ?? "",
     tiktok: formData.get("tiktok") ?? "",
     x: formData.get("x") ?? "",
     facebook: formData.get("facebook") ?? "",
-    youtube: formData.get("youtube") ?? "",
     lowStockThreshold: formData.get("lowStockThreshold"),
     abandonedCartHours: formData.get("abandonedCartHours"),
     abandonedCartMaxReminders: formData.get("abandonedCartMaxReminders"),
@@ -338,25 +345,26 @@ export async function updateSettingsAction(_previous: ActionState, formData: For
   const values: Record<string, unknown> = {
     ...parsed.data,
     shippingFlat: Math.round(parsed.data.shippingFlat * 100),
+    abujaShippingFee: Math.round(parsed.data.abujaShippingFee * 100),
     freeShippingThreshold: Math.round(parsed.data.freeShippingThreshold * 100),
   };
 
   const fields = [
     "storeName",
     "tagline",
-    "announcement",
     "currency",
     "shippingFlat",
+    "abujaShippingFee",
     "freeShippingThreshold",
     "taxRate",
     "supportEmail",
     "supportPhone",
     "address",
+    "address2",
     "instagram",
     "tiktok",
     "x",
     "facebook",
-    "youtube",
     "lowStockThreshold",
     "abandonedCartHours",
     "abandonedCartMaxReminders",

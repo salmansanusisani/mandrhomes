@@ -15,7 +15,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default async function CartPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const [cart, settings] = await Promise.all([getCart(), getSettings()]);
-  const summary = summarizeCart(cart, settings);
+  const summary = summarizeCart(cart, settings, "Abuja");
   const freeShippingProgress = Math.min(
     100,
     settings.freeShippingThreshold > 0 ? (summary.subtotal / settings.freeShippingThreshold) * 100 : 100,
@@ -130,14 +130,17 @@ export default async function CartPage({ searchParams }: { searchParams: SearchP
 
               <dl className="mt-5 space-y-2.5 text-sm">
                 <div className="flex justify-between"><dt className="text-muted">Subtotal</dt><dd className="font-medium">{formatMoney(summary.subtotal, settings.currency)}</dd></div>
-                <div className="flex justify-between"><dt className="text-muted">Delivery</dt><dd className="font-medium">{summary.shipping === 0 ? "Free" : formatMoney(summary.shipping, settings.currency)}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted">Delivery</dt><dd className="font-medium">{summary.shipping === 0 ? "Free" : `From ${formatMoney(summary.shipping, settings.currency)}`}</dd></div>
                 {summary.tax > 0 && (
                   <div className="flex justify-between"><dt className="text-muted">Tax</dt><dd className="font-medium">{formatMoney(summary.tax, settings.currency)}</dd></div>
                 )}
                 <div className="flex justify-between border-t border-sand pt-3 text-base font-bold">
-                  <dt>Total</dt><dd>{formatMoney(summary.total, settings.currency)}</dd>
+                  <dt>{summary.qualifiesForFreeShipping ? "Total" : "Estimated total"}</dt><dd>{formatMoney(summary.total, settings.currency)}</dd>
                 </div>
               </dl>
+              {!summary.qualifiesForFreeShipping && (
+                <p className="mt-2 text-[11px] text-muted">Final delivery is confirmed from your state at checkout.</p>
+              )}
 
               <Link href="/checkout" className="btn-primary mt-5 h-12 w-full text-[15px]">
                 Checkout <ArrowRight className="h-4 w-4" />

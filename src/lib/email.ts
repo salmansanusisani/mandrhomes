@@ -52,7 +52,7 @@ export async function sendEmail({ to, subject, html, type, userId, orderId }: Se
     const transport = getTransporter();
     if (transport) {
       await transport.sendMail({
-        from: process.env.MAIL_FROM ?? "M&R Homes <no-reply@mrhomes.ng>",
+        from: process.env.MAIL_FROM ?? "M&R Homes <no-reply@mandrhomes.com>",
         to,
         subject,
         html,
@@ -96,7 +96,7 @@ function layout(settings: StoreSettings, title: string, body: string, preview?: 
           </td></tr>
           <tr><td style="padding:20px 32px 32px;border-top:1px solid #eeeae1;color:#6b7570;font-size:12px;line-height:1.6;">
             <p style="margin:0 0 6px;">Need help? Reply to this email or contact <a href="mailto:${escapeHtml(settings.supportEmail)}" style="color:#0f5132;">${escapeHtml(settings.supportEmail)}</a>.</p>
-            <p style="margin:0;">${escapeHtml(settings.storeName)} · ${escapeHtml(settings.address)}</p>
+            <p style="margin:0;">${escapeHtml(settings.storeName)} · ${escapeHtml(settings.address)} · ${escapeHtml(settings.address2)}</p>
           </td></tr>
         </table>
       </td></tr>

@@ -41,7 +41,7 @@ export async function placeOrderAction(_previous: ActionState, formData: FormDat
 
   const session = await getSession();
   const settings = await getSettings();
-  const summary = summarizeCart(cart, settings);
+  const summary = summarizeCart(cart, settings, parsed.data.state);
 
   if (summary.count === 0) return { ok: false, message: "Your cart is empty." };
 

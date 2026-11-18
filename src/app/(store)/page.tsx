@@ -1,10 +1,12 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
 import { ArrowRight, Leaf, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
-import { formatMoney } from "@/lib/utils";
+import { absoluteUrl, formatMoney } from "@/lib/utils";
+import { HeroSlideshow } from "@/components/store/hero-slideshow";
 import { ProductCard } from "@/components/store/product-card";
 import { NewsletterForm } from "@/components/store/newsletter-form";
 
@@ -14,8 +16,41 @@ const productInclude = {
   reviews: { select: { rating: true, status: true } },
 } satisfies Prisma.ProductInclude;
 
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  const title = `${settings.storeName} | Plants, Planters & Home Decor in Nigeria`;
+  const description =
+    "Shop curated plants, planters, vases, flowers, rugs, furniture and home decor in Nigeria. Visit our Abuja and Kano showrooms or order online with nationwide delivery and secure Paystack checkout.";
+
+  return {
+    alternates: { canonical: "/" },
+    openGraph: {
+      type: "website",
+      siteName: settings.storeName,
+      title,
+      description,
+      url: absoluteUrl("/"),
+      locale: "en_NG",
+      images: [
+        {
+          url: absoluteUrl("/brand/hero-gallery.jpg"),
+          width: 2888,
+          height: 1612,
+          alt: "M&R Homes plants, decor and furniture in Abuja and Kano",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [absoluteUrl("/brand/hero-gallery.jpg")],
+    },
+  };
+}
+
 export default async function HomePage() {
-  const [settings, categories, featured, newest, testimonials, productCount] = await Promise.all([
+  const [settings, categories, featured, newest, testimonials] = await Promise.all([
     getSettings(),
     prisma.category.findMany({
       orderBy: { sortOrder: "asc" },
@@ -39,88 +74,23 @@ export default async function HomePage() {
       take: 3,
       include: { user: { select: { name: true } }, product: { select: { name: true, slug: true } } },
     }),
-    prisma.product.count({ where: { isActive: true } }),
   ]);
 
   const currency = settings.currency;
 
   return (
     <>
-      <section className="relative overflow-hidden bg-brand-dark text-cream">
-        <div className="grid min-h-[600px] lg:grid-cols-[0.92fr_1.08fr]">
-          <div className="relative z-10 flex flex-col justify-center px-6 py-16 sm:px-10 lg:px-14 lg:py-24 xl:px-20">
-            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.26em] text-steel">
-              <Sparkles className="h-3.5 w-3.5" /> The M&amp;R home edit · Abuja
-            </p>
-            <h1 className="display mt-6 text-[2.9rem] font-semibold leading-[0.98] sm:text-6xl xl:text-7xl">
-              A home with
-              <br />
-              <span className="text-steel">a point of view.</span>
-            </h1>
-            <p className="mt-7 max-w-md text-sm leading-relaxed text-cream/65 sm:text-base">
-              Sculptural plants, hand-finished planters and quiet objects — curated for spaces that feel personal,
-              layered and lived in.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Link href="/products" className="btn h-12 bg-cream px-7 text-[15px] text-brand-dark hover:bg-white">
-                Shop the collection <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/products?category=furniture" className="btn h-12 border border-white/20 px-6 text-cream hover:bg-white/10">
-                Explore furniture
-              </Link>
-            </div>
-            <div className="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-white/10 pt-6">
-              <div>
-                <p className="font-display text-2xl text-white">{categories.length}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-cream/40">Collections</p>
-              </div>
-              <div>
-                <p className="font-display text-2xl text-white">{productCount}+</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-cream/40">Considered pieces</p>
-              </div>
-              <div>
-                <p className="font-display text-2xl text-white">Abuja</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-cream/40">Curated locally</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative min-h-[440px] lg:min-h-full">
-            <Image
-              src="/brand/hero-living.avif"
-              alt="A layered living room with sculptural furniture and greenery"
-              fill
-              priority
-              sizes="(min-width: 1024px) 55vw, 100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/15 to-transparent lg:via-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/50 via-transparent to-transparent" />
-
-            <Link
-              href="/products?category=furniture"
-              className="absolute bottom-6 left-6 right-6 flex items-end justify-between gap-5 rounded-2xl border border-white/15 bg-brand-dark/70 p-5 backdrop-blur-md transition hover:border-white/30 sm:left-8 sm:right-auto sm:w-[340px]"
-            >
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-steel">The living edit</p>
-                <p className="mt-2 font-display text-xl text-white">Rugs, mirrors &amp; statement seating</p>
-              </div>
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/20 text-white">
-                <ArrowRight className="h-4 w-4" />
-              </span>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <HeroSlideshow />
 
       <section className="container-page py-16 lg:py-20">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="eyebrow">Browse the house</p>
-            <h2 className="display mt-3 text-3xl font-semibold sm:text-5xl">Shop by collection</h2>
+            <h2 className="display mt-3 text-3xl font-semibold sm:text-5xl">Shop plants &amp; home decor</h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-muted">
-            From living greenery to the last considered object on the shelf — eight collections, one point of view.
+            From living greenery to the last considered object on the shelf — eight collections, with delivery from
+            our Abuja and Kano showrooms across Nigeria.
           </p>
         </div>
 
@@ -230,7 +200,7 @@ export default async function HomePage() {
         <div className="container-page grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { icon: Leaf, title: "Sourced with intent", copy: "A tight edit of pieces chosen for form, texture and daily life." },
-            { icon: Truck, title: "Delivery across Nigeria", copy: `Complimentary over ${formatMoney(settings.freeShippingThreshold, currency)}.` },
+            { icon: Truck, title: "Delivery across Nigeria", copy: `From ${formatMoney(settings.abujaShippingFee, currency)} in Abuja · free over ${formatMoney(settings.freeShippingThreshold, currency)}.` },
             { icon: ShieldCheck, title: "Secure payments", copy: "Card, transfer and USSD via Paystack." },
             { icon: Sparkles, title: "Real styling help", copy: "Tell us the room. We will help you pull it together." },
           ].map((item) => (

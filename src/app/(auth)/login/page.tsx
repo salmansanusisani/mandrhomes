@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { getSession, safeNextPath } from "@/lib/auth";
 import { LoginForm } from "@/components/store/auth-forms";
+import { authErrorMessage } from "@/lib/auth-messages";
 
 export const metadata: Metadata = { title: "Sign in", robots: { index: false, follow: false } };
 
@@ -15,6 +16,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
   if (session) redirect(next);
 
   const resetSuccess = params.reset === "1";
+  const googleError = authErrorMessage(typeof params.error === "string" ? params.error : null);
   const isDev = process.env.NODE_ENV !== "production";
 
   return (
@@ -26,6 +28,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
         <div className="mt-5 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
           Password updated. You can now sign in with your new password.
+        </div>
+      )}
+      {googleError && (
+        <div className="mt-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-800">
+          {googleError}
         </div>
       )}
 

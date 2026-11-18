@@ -1,42 +1,60 @@
 import type { Metadata } from "next";
 import { getSettings } from "@/lib/settings";
+import { jsonLdString, siteJsonLd } from "@/lib/seo";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const defaultTitle = `${settings.storeName} | Plants, Planters & Home Decor in Nigeria`;
+  const description =
+    "Shop curated plants, planters, vases, flowers, rugs, furniture and home decor in Nigeria. Visit our Abuja and Kano showrooms or order online with nationwide delivery and secure Paystack checkout.";
   return {
     metadataBase: new URL(baseUrl),
     title: {
-      default: `${settings.storeName} — ${settings.tagline}`,
+      default: defaultTitle,
       template: `%s · ${settings.storeName}`,
     },
-    description:
-      "Curated plants, planters, flowers, decor, rugs and furniture for considered living. Secure checkout with Paystack and delivery across Nigeria.",
+    description,
     applicationName: settings.storeName,
-    keywords: ["M&R Homes", "plants Abuja", "planters", "home decor Nigeria", "furniture Abuja", "rugs", settings.storeName],
-    icons: { icon: "/brand/favicon.ico" },
-    openGraph: {
-      type: "website",
-      siteName: settings.storeName,
-      title: `${settings.storeName} — ${settings.tagline}`,
-      description: "Plants, planters and objects for a home with a point of view.",
-      url: baseUrl,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${settings.storeName} — ${settings.tagline}`,
-      description: "Plants, planters and objects for a home with a point of view.",
+    keywords: [
+      "M&R Homes",
+      "plants Nigeria",
+      "buy plants online Nigeria",
+      "plants Abuja",
+      "plants Kano",
+      "planters Nigeria",
+      "home decor Nigeria",
+      "home decor Abuja",
+      "home decor Kano",
+      "furniture Nigeria",
+      "rugs Nigeria",
+      "vases Nigeria",
+      "flowers Abuja",
+      settings.storeName,
+    ],
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      ],
+      apple: { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
     },
     robots: { index: true, follow: true },
-    alternates: { canonical: "/" },
   };
 }
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const settings = await getSettings();
   return (
-    <html lang="en">
-      <body className="min-h-screen antialiased">{children}</body>
+    <html lang="en-NG">
+      <body className="min-h-screen antialiased">
+        {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdString(siteJsonLd(settings)) }}
+        />
+      </body>
     </html>
   );
 }

@@ -6,6 +6,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 import { getSession, type SessionUser } from "./auth";
 import type { StoreSettings } from "./settings";
+import { shippingForState } from "./shipping";
 
 export const CART_COOKIE = "shopwave_cart";
 const CART_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
@@ -25,12 +26,17 @@ export type CartSummary = {
   currency: string;
 };
 
-export function summarizeCart(cart: CartWithItems | null, settings: StoreSettings): CartSummary {
+export function summarizeCart(
+  cart: CartWithItems | null,
+  settings: StoreSettings,
+  deliveryState?: string | null,
+): CartSummary {
   const items = cart?.items ?? [];
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
-  const qualifiesForFreeShipping = subtotal > 0 && subtotal >= settings.freeShippingThreshold;
-  const shipping = subtotal === 0 || qualifiesForFreeShipping ? 0 : settings.shippingFlat;
+  const qualifiesForFreeShipping =
+    subtotal > 0 && settings.freeShippingThreshold > 0 && subtotal >= settings.freeShippingThreshold;
+  const shipping = shippingForState(deliveryState, subtotal, settings);
   const tax = Math.round(subtotal * settings.taxRate);
   return {
     count,

@@ -13,12 +13,6 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 bg-brand-dark text-cream shadow-lg shadow-brand-dark/10">
-      <div className="bg-brand text-white">
-        <div className="container-page flex h-9 items-center justify-center text-center text-[10px] font-medium uppercase tracking-[0.18em]">
-          <span className="truncate">{settings.announcement}</span>
-        </div>
-      </div>
-
       <div className="container-page relative flex h-[74px] items-center justify-between gap-4 lg:h-[88px]">
         <div className="flex items-center gap-1 text-cream">
           <MobileMenu

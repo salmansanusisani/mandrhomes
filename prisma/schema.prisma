@@ -78,6 +78,7 @@ model User {
   pageViews     PageView[]
   emailLogs     EmailLog[]
   subscriptions NewsletterSubscriber[]
+  orderEvents   OrderEvent[]
 }
 
 model Address {
@@ -274,11 +275,16 @@ model OrderEvent {
   id        String   @id @default(cuid())
   orderId   String
   message   String
+  actorId   String?
+  actorName String?
+  actorRole String?
   createdAt DateTime @default(now())
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
 
   @@index([orderId])
+  @@index([actorId])
 }
 
 model PageView {

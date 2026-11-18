@@ -118,7 +118,12 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
                   <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand" />
                   <div>
                     <p>{event.message}</p>
-                    <p className="text-[11px] text-muted">{formatDateTime(event.createdAt)}</p>
+                    <p className="text-[11px] text-muted">
+                      {formatDateTime(event.createdAt)}
+                      {event.actorName && (
+                        <> · by <span className="font-medium text-ink">{event.actorName}</span>{event.actorRole ? ` (${label(event.actorRole)})` : ""}</>
+                      )}
+                    </p>
                   </div>
                 </li>
               ))}

@@ -748,18 +748,18 @@ async function main() {
   const settings: Record<string, unknown> = {
     storeName: "M&R Homes",
     tagline: "Curated plants, planters and objects for considered living.",
-    announcement: "Complimentary delivery in Abuja on orders over ₦250,000",
     currency: "NGN",
-    shippingFlat: n(7500),
+    shippingFlat: n(7000),
+    abujaShippingFee: n(3000),
     freeShippingThreshold: n(250000),
     taxRate: 0,
-    supportEmail: process.env.SUPPORT_EMAIL ?? "hello@mrhomes.ng",
+    supportEmail: process.env.SUPPORT_EMAIL ?? "contact@mandrhomes.com",
     supportPhone: "+234 803 000 0000",
     address: "Shop A206, Stick and Stones (Carter) Plaza, Ademola Adetokubo Crescent, Wuse 2, Abuja",
+    address2: "Shop 3, No 7 Bompai Road, Opposite Pilgrim Board by FCMB, Nassarawa, Kano State",
     instagram: "https://instagram.com/mandrhomes",
     tiktok: "https://tiktok.com/@mandrhomes",
     facebook: "https://facebook.com/mandrhomes",
-    youtube: "https://youtube.com/@mandrhomes",
     x: "",
     lowStockThreshold: 10,
     abandonedCartHours: 6,
@@ -768,6 +768,7 @@ async function main() {
   for (const [key, value] of Object.entries(settings)) {
     await prisma.setting.upsert({ where: { key }, update: { value: value as never }, create: { key, value: value as never } });
   }
+  await prisma.setting.deleteMany({ where: { key: { in: ["announcement", "youtube"] } } });
 
   console.log("Seed complete.");
   console.log(`Admin: ${admin.email} / ${adminPassword}`);

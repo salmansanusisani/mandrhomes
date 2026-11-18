@@ -4,6 +4,7 @@ import { getSettings } from "@/lib/settings";
 export const metadata: Metadata = {
   title: "Privacy policy",
   description: "How M&R Homes collects, uses and protects your personal information.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default async function PrivacyPage() {
@@ -20,7 +21,7 @@ export default async function PrivacyPage() {
           <section>
             <h2 className="mb-2 text-lg font-semibold text-ink">1. Who we are</h2>
             <p>
-              {settings.storeName} operates this store. You can reach us at {settings.supportEmail} or {settings.address}.
+              {settings.storeName} operates this store. You can reach us at {settings.supportEmail}, {settings.address}, or {settings.address2}.
               This policy explains what information we collect when you use the store, why we collect it and how it is protected.
             </p>
           </section>

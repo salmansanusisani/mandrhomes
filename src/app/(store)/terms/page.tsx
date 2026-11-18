@@ -4,6 +4,7 @@ import { getSettings } from "@/lib/settings";
 export const metadata: Metadata = {
   title: "Terms of service",
   description: "The terms that apply when you shop with M&R Homes.",
+  alternates: { canonical: "/terms" },
 };
 
 export default async function TermsPage() {

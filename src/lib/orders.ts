@@ -18,6 +18,21 @@ export function newPaymentReference() {
   return `PS-${randomBytes(12).toString("hex").toUpperCase()}`;
 }
 
+export type OrderActor = {
+  id?: string | null;
+  name: string;
+  role?: string | null;
+};
+
+function actorFields(actor?: OrderActor | null) {
+  if (!actor) return {};
+  return {
+    actorId: actor.id ?? null,
+    actorName: actor.name,
+    actorRole: actor.role ?? null,
+  };
+}
+
 export type CheckoutCustomer = {
   customerName: string;
   email: string;
@@ -47,7 +62,7 @@ export async function createOrderFromCart(options: {
   }
 
   const settings = await getSettings();
-  const summary = summarizeCart(cart, settings);
+  const summary = summarizeCart(cart, settings, customer.state);
   const reference = newPaymentReference();
   const shippingAddress = {
     fullName: customer.customerName,
@@ -102,7 +117,10 @@ export async function createOrderFromCart(options: {
   return { order, reference };
 }
 
-export async function markOrderPaid(reference: string, options: { amountMinor?: number | null } = {}) {
+export async function markOrderPaid(
+  reference: string,
+  options: { amountMinor?: number | null; actor?: OrderActor | null } = {},
+) {
   const order = await prisma.order.findUnique({
     where: { paymentReference: reference },
     include: { items: true },
@@ -119,7 +137,11 @@ export async function markOrderPaid(reference: string, options: { amountMinor?: 
 
   if (options.amountMinor != null && options.amountMinor < order.total) {
     await prisma.orderEvent.create({
-      data: { orderId: order.id, message: `Payment amount mismatch: received ${options.amountMinor}, expected ${order.total}` },
+      data: {
+        orderId: order.id,
+        message: `Payment amount mismatch: received ${options.amountMinor}, expected ${order.total}`,
+        ...actorFields(options.actor),
+      },
     });
     return { ok: false, reason: "amount_mismatch" as const, order };
   }
@@ -144,7 +166,9 @@ export async function markOrderPaid(reference: string, options: { amountMinor?: 
       await tx.cart.updateMany({ where: { id: order.cartId }, data: { status: "CONVERTED" } });
     }
 
-    await tx.orderEvent.create({ data: { orderId: order.id, message: "Payment confirmed" } });
+    await tx.orderEvent.create({
+      data: { orderId: order.id, message: "Payment confirmed", ...actorFields(options.actor) },
+    });
     return tx.order.findUnique({ where: { id: order.id }, include: { items: true } });
   });
 
@@ -170,7 +194,7 @@ export async function markOrderPaymentFailed(reference: string, reason?: string)
   ]);
 }
 
-export async function setOrderStatus(orderId: string, status: OrderStatus) {
+export async function setOrderStatus(orderId: string, status: OrderStatus, actor?: OrderActor | null) {
   const order = await prisma.order.findUnique({ where: { id: orderId }, include: { items: true } });
   if (!order) return null;
   if (order.status === status) return order;
@@ -185,7 +209,11 @@ export async function setOrderStatus(orderId: string, status: OrderStatus) {
       include: { items: true },
     });
     await tx.orderEvent.create({
-      data: { orderId: order.id, message: `Status changed from ${order.status} to ${status}` },
+      data: {
+        orderId: order.id,
+        message: `Status changed from ${order.status} to ${status}`,
+        ...actorFields(actor),
+      },
     });
 
     if (status === OrderStatus.CANCELLED && order.status !== OrderStatus.CANCELLED && order.paymentStatus === "SUCCESS") {
@@ -197,7 +225,9 @@ export async function setOrderStatus(orderId: string, status: OrderStatus) {
           WHERE "id" = ${item.productId}
         `;
       }
-      await tx.orderEvent.create({ data: { orderId: order.id, message: "Stock restored after cancellation" } });
+      await tx.orderEvent.create({
+        data: { orderId: order.id, message: "Stock restored after cancellation", ...actorFields(actor) },
+      });
     }
 
     return next;

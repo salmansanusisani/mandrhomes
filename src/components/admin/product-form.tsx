@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { saveProductAction } from "@/app/actions/admin";
+import { ProductImagesField } from "@/components/admin/product-images-field";
 
 export type ProductFormValues = {
   id?: string;
@@ -122,12 +123,7 @@ export function ProductForm({
       <section className="rounded-2xl border border-sand bg-white p-5">
         <h2 className="text-sm font-semibold">Media &amp; tags</h2>
         <div className="mt-4 grid gap-4">
-          <div>
-            <label htmlFor="images" className="label">Image URLs</label>
-            <textarea id="images" name="images" rows={4} defaultValue={product?.images.join("\n")} className="input resize-y font-mono text-xs" placeholder={"https://images.example.com/photo-1.jpg\nhttps://images.example.com/photo-2.jpg"} />
-            <p className="mt-1 text-[11px] text-muted">One URL per line, up to 8. The first image is the main image.</p>
-            {errors.images && <p className="mt-1 text-xs text-rose-600">{errors.images}</p>}
-          </div>
+          <ProductImagesField initialImages={product?.images ?? []} error={errors.images} />
           <Field label="Tags" name="tags" defaultValue={product?.tags.join(", ")} error={errors.tags} placeholder="plants, artificial, fibre stone" hint="Comma separated, up to 12." />
         </div>
       </section>

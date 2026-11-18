@@ -6,6 +6,7 @@ import { formatMoney } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Shipping & returns",
   description: "Delivery times, fees and our 14-day returns policy.",
+  alternates: { canonical: "/shipping-returns" },
 };
 
 export default async function ShippingReturnsPage() {
@@ -38,8 +39,9 @@ export default async function ShippingReturnsPage() {
             </div>
           </div>
           <p className="text-sm leading-relaxed text-muted">
-            Delivery is {formatMoney(settings.shippingFlat, settings.currency)} and free on orders over{" "}
-            {formatMoney(settings.freeShippingThreshold, settings.currency)}.
+            Delivery is {formatMoney(settings.abujaShippingFee, settings.currency)} within Abuja and{" "}
+            {formatMoney(settings.shippingFlat, settings.currency)} elsewhere in Nigeria. Orders over{" "}
+            {formatMoney(settings.freeShippingThreshold, settings.currency)} are delivered free.
           </p>
         </section>
 

@@ -6,7 +6,8 @@ import { ChevronRight, PackageCheck, RotateCcw, ShieldCheck, Star, Truck } from 
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
-import { formatDate, formatMoney } from "@/lib/utils";
+import { absoluteUrl, formatDate, formatMoney } from "@/lib/utils";
+import { jsonLdString } from "@/lib/seo";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { BuyBox } from "@/components/store/buy-box";
 import { ProductCard } from "@/components/store/product-card";
@@ -27,29 +28,44 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     where: { slug },
     include: { images: { orderBy: { position: "asc" } }, category: true },
   });
-  if (!product) return { title: "Product not found" };
+  if (!product) return { title: "Product not found", robots: { index: false, follow: false } };
+
+  const canonical = `/products/${product.slug}`;
+  const title = `${product.name} — ${product.category.name} in Nigeria`;
+  const description =
+    product.shortDescription?.trim() ||
+    `Shop ${product.name} online in Nigeria with delivery from our Abuja and Kano showrooms. Secure Paystack checkout from M&R Homes.`;
+  const image = product.images[0]
+    ? { url: absoluteUrl(product.images[0].url), alt: product.images[0].alt ?? product.name }
+    : { url: absoluteUrl("/brand/hero-gallery.jpg"), alt: `${product.name} at M&R Homes` };
 
   return {
-    title: product.name,
-    description: product.shortDescription,
-    alternates: { canonical: `/products/${product.slug}` },
+    title,
+    description,
+    keywords: [
+      product.name,
+      `${product.name} Nigeria`,
+      `${product.category.name} Nigeria`,
+      `${product.category.name} Abuja`,
+      `${product.category.name} Kano`,
+      product.brand,
+    ].filter((value): value is string => Boolean(value)),
+    alternates: { canonical },
+    robots: product.isActive ? undefined : { index: false, follow: false },
     openGraph: {
       type: "website",
-      title: product.name,
-      description: product.shortDescription,
-      images: product.images[0] ? [{ url: product.images[0].url, alt: product.images[0].alt ?? product.name }] : [],
+      url: absoluteUrl(canonical),
+      title,
+      description,
+      images: [image],
     },
     twitter: {
       card: "summary_large_image",
-      title: product.name,
-      description: product.shortDescription,
-      images: product.images[0]?.url ? [product.images[0].url] : [],
+      title,
+      description,
+      images: [image.url],
     },
   };
-}
-
-function jsonLd(value: unknown) {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
 export default async function ProductPage({ params }: { params: Params }) {
@@ -112,13 +128,19 @@ export default async function ProductPage({ params }: { params: Params }) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: process.env.NEXT_PUBLIC_APP_URL },
-      { "@type": "ListItem", position: 2, name: "Shop", item: `${process.env.NEXT_PUBLIC_APP_URL}/products` },
+      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+      { "@type": "ListItem", position: 2, name: "Shop", item: absoluteUrl("/products") },
       {
         "@type": "ListItem",
         position: 3,
+        name: product.category.name,
+        item: absoluteUrl(`/products?category=${product.category.slug}`),
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
         name: product.name,
-        item: `${process.env.NEXT_PUBLIC_APP_URL}/products/${product.slug}`,
+        item: absoluteUrl(`/products/${product.slug}`),
       },
     ],
   };
@@ -128,8 +150,9 @@ export default async function ProductPage({ params }: { params: Params }) {
     "@type": "Product",
     name: product.name,
     description: product.description,
+    url: absoluteUrl(`/products/${product.slug}`),
     sku: product.sku,
-    image: product.images.map((image) => image.url),
+    image: product.images.map((image) => absoluteUrl(image.url)),
     brand: { "@type": "Brand", name: product.brand ?? settings.storeName },
     category: product.category.name,
     ...(reviewCount > 0
@@ -137,18 +160,19 @@ export default async function ProductPage({ params }: { params: Params }) {
       : {}),
     offers: {
       "@type": "Offer",
-      url: `${process.env.NEXT_PUBLIC_APP_URL}/products/${product.slug}`,
+      url: absoluteUrl(`/products/${product.slug}`),
       priceCurrency: settings.currency,
       price: (product.price / 100).toFixed(2),
       availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: settings.storeName, url: absoluteUrl("/") },
     },
   };
 
   return (
     <div className="container-page py-8 lg:py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(productJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(productJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbJsonLd) }} />
 
       <nav className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-ink">Home</Link>

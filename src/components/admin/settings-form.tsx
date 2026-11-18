@@ -55,18 +55,19 @@ export function SettingsForm({ settings }: { settings: StoreSettings }) {
             <Field label="Tagline" name="tagline" defaultValue={settings.tagline} error={errors.tagline} />
           </div>
           <div className="sm:col-span-2">
-            <Field label="Announcement bar" name="announcement" defaultValue={settings.announcement} error={errors.announcement} />
+            <Field label="Abuja showroom address" name="address" defaultValue={settings.address} error={errors.address} />
           </div>
           <div className="sm:col-span-2">
-            <Field label="Business address" name="address" defaultValue={settings.address} error={errors.address} />
+            <Field label="Kano showroom address" name="address2" defaultValue={settings.address2} error={errors.address2} />
           </div>
         </div>
       </section>
 
       <section className="rounded-2xl border border-sand bg-white p-5">
         <h2 className="text-sm font-semibold">Pricing, delivery &amp; tax</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <Field label="Flat delivery fee (₦)" name="shippingFlat" type="number" step="0.01" min="0" defaultValue={String(settings.shippingFlat / 100)} error={errors.shippingFlat} />
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Abuja delivery fee (₦)" name="abujaShippingFee" type="number" step="0.01" min="0" defaultValue={String(settings.abujaShippingFee / 100)} error={errors.abujaShippingFee} hint="Applies to FCT / Abuja addresses." />
+          <Field label="Other Nigeria fee (₦)" name="shippingFlat" type="number" step="0.01" min="0" defaultValue={String(settings.shippingFlat / 100)} error={errors.shippingFlat} hint="Applies outside Abuja." />
           <Field label="Free delivery over (₦)" name="freeShippingThreshold" type="number" step="0.01" min="0" defaultValue={String(settings.freeShippingThreshold / 100)} error={errors.freeShippingThreshold} hint="Set 0 to always charge delivery." />
           <Field label="Tax rate (%)" name="taxRate" type="number" step="0.01" min="0" max="100" defaultValue={String(settings.taxRate * 100)} error={errors.taxRate} hint="Added to the subtotal at checkout." />
         </div>
@@ -95,7 +96,6 @@ export function SettingsForm({ settings }: { settings: StoreSettings }) {
           <Field label="Instagram URL" name="instagram" defaultValue={settings.instagram} error={errors.instagram} placeholder="https://instagram.com/…" />
           <Field label="TikTok URL" name="tiktok" defaultValue={settings.tiktok} error={errors.tiktok} placeholder="https://tiktok.com/@…" />
           <Field label="Facebook URL" name="facebook" defaultValue={settings.facebook} error={errors.facebook} placeholder="https://facebook.com/…" />
-          <Field label="YouTube URL" name="youtube" defaultValue={settings.youtube} error={errors.youtube} placeholder="https://youtube.com/@…" />
           <Field label="X URL" name="x" defaultValue={settings.x} error={errors.x} placeholder="https://x.com/…" />
         </div>
       </section>

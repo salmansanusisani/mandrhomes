@@ -18,28 +18,28 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           sizes="55vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/85 to-brand-dark/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-brand-dark/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-dark/30 via-brand-dark/5 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/20 via-transparent to-transparent" />
 
         <div className="relative flex flex-1 flex-col p-12">
-          <Logo name={settings.storeName} inverted />
+          <Logo name={settings.storeName} inverted className="drop-shadow-[0_2px_16px_rgba(10,17,48,0.8)]" />
           <div className="my-auto max-w-lg">
-            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-steel">
+            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-steel [text-shadow:0_1px_6px_rgba(10,17,48,0.95)]">
               <Sparkles className="h-3.5 w-3.5" /> The M&amp;R edit
             </p>
-            <blockquote className="display mt-5 text-4xl font-semibold leading-[1.08] xl:text-5xl">
+            <blockquote className="display mt-5 text-4xl font-semibold leading-[1.08] [text-shadow:0_2px_4px_rgba(10,17,48,0.95),0_6px_20px_rgba(10,17,48,0.85),0_14px_48px_rgba(10,17,48,0.7)] xl:text-5xl">
               A home should feel collected, not decorated.
             </blockquote>
-            <p className="mt-5 max-w-md text-sm leading-relaxed text-cream/65">
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-cream/85 [text-shadow:0_1px_3px_rgba(10,17,48,0.95),0_4px_18px_rgba(10,17,48,0.9),0_10px_40px_rgba(10,17,48,0.75)]">
               {settings.tagline} Save your favourites, follow your orders and check out in a few quiet clicks.
             </p>
-            <div className="mt-10 space-y-4 text-sm text-cream/75">
+            <div className="mt-10 space-y-4 text-sm text-cream/90 [text-shadow:0_1px_3px_rgba(10,17,48,0.95),0_4px_16px_rgba(10,17,48,0.85)]">
               <p className="flex items-center gap-3"><Leaf className="h-5 w-5 text-steel" /> Plants and objects chosen with care</p>
               <p className="flex items-center gap-3"><Truck className="h-5 w-5 text-steel" /> Delivery across Abuja and Nigeria</p>
               <p className="flex items-center gap-3"><ShieldCheck className="h-5 w-5 text-steel" /> Secure Paystack payments</p>
             </div>
           </div>
-          <p className="text-xs text-cream/40">© {new Date().getFullYear()} {settings.storeName}. All rights reserved.</p>
+          <p className="text-xs text-cream/60 [text-shadow:0_1px_3px_rgba(10,17,48,0.8)]">© {new Date().getFullYear()} {settings.storeName}. All rights reserved.</p>
         </div>
       </div>
 

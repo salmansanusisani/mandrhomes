@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { GoogleIcon } from "@/components/site/social-icons";
 import { useState } from "react";
 import {
   loginAction,
@@ -83,6 +84,20 @@ function Feedback({ state }: { state: ActionState }) {
   );
 }
 
+
+function GoogleButton({ next }: { next: string }) {
+  return (
+    <>
+      <a href={`/api/auth/google?next=${encodeURIComponent(next)}`} className="btn-outline h-11 w-full">
+        <GoogleIcon className="h-[18px] w-[18px]" /> Continue with Google
+      </a>
+      <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+        <span className="h-px flex-1 bg-sand" /> or <span className="h-px flex-1 bg-sand" />
+      </div>
+    </>
+  );
+}
+
 export function LoginForm({ next = "/account" }: { next?: string }) {
   const [state, action] = useActionState(loginAction, null);
   const errors = state?.errors ?? {};
@@ -91,6 +106,7 @@ export function LoginForm({ next = "/account" }: { next?: string }) {
     <form action={action} className="space-y-4">
       <input type="hidden" name="next" value={next} />
       <Feedback state={state} />
+      <GoogleButton next={next} />
       <div>
         <label htmlFor="login-email" className="label">Email address</label>
         <input
@@ -125,6 +141,7 @@ export function RegisterForm({ next = "/account" }: { next?: string }) {
     <form action={action} className="space-y-4">
       <input type="hidden" name="next" value={next} />
       <Feedback state={state} />
+      <GoogleButton next={next} />
       <div>
         <label htmlFor="register-name" className="label">Full name</label>
         <input id="register-name" name="name" autoComplete="name" className="input" placeholder="Ada Obi" required minLength={2} />

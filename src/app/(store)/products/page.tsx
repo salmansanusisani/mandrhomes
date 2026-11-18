@@ -5,7 +5,8 @@ import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { getBrandCategory } from "@/lib/brand";
-import { formatMoney } from "@/lib/utils";
+import { absoluteUrl, formatMoney } from "@/lib/utils";
+import { jsonLdString } from "@/lib/seo";
 import { ProductCard } from "@/components/store/product-card";
 import { CatalogFilters, loadFilterCategories } from "@/components/store/catalog-filters";
 import { SortSelect } from "@/components/store/sort-select";
@@ -40,16 +41,51 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   const tag = first(params.tag);
   const category = categorySlug ? await prisma.category.findUnique({ where: { slug: categorySlug } }) : null;
 
-  let title = "Shop all";
+  let title = "Shop plants, planters & home decor in Nigeria";
   if (q) title = `Search: ${q}`;
-  else if (category && tag) title = `${category.name} · ${tag}`;
-  else if (category) title = category.name;
+  else if (category && tag) title = `${tag} ${category.name} in Nigeria`;
+  else if (category) title = `${category.name} in Nigeria`;
+
+  const canonical = category ? `/products?category=${category.slug}` : "/products";
+  const description = category
+    ? `${category.description} Buy ${category.name.toLowerCase()} online in Nigeria from M&R Homes, with delivery from our Abuja and Kano showrooms and secure Paystack checkout.`
+    : "Browse plants, planters, vases, flowers, decor, rugs and furniture at M&R Homes. Shop online in Nigeria with delivery from Abuja and Kano.";
+  const image = category?.image ? absoluteUrl(category.image) : absoluteUrl("/brand/hero-gallery.jpg");
 
   return {
     title,
-    description: category?.description ?? "Browse M&R Homes — curated plants, planters, decor, rugs and furniture for considered living.",
-    alternates: { canonical: category ? `/products?category=${category.slug}` : "/products" },
+    description,
+    keywords: category
+      ? [
+          `${category.name} Nigeria`,
+          `buy ${category.name.toLowerCase()} Nigeria`,
+          `${category.name} Abuja`,
+          `${category.name} Kano`,
+          `${category.name} online`,
+        ]
+      : [
+          "home decor Nigeria",
+          "plants Nigeria",
+          "planters Nigeria",
+          "furniture Nigeria",
+          "rugs Nigeria",
+          "online home store Abuja",
+        ],
+    alternates: { canonical },
     ...(q ? { robots: { index: false, follow: true } } : {}),
+    openGraph: {
+      type: "website",
+      url: absoluteUrl(canonical),
+      title,
+      description,
+      images: [{ url: image, alt: `${category?.name ?? "M&R Homes"} in Nigeria` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
   };
 }
 
@@ -108,6 +144,45 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const activeCategory = categories.find((category) => category.slug === categorySlug);
   const brandCategory = getBrandCategory(categorySlug);
+  const categoryCanonical = activeCategory ? `/products?category=${activeCategory.slug}` : "/products";
+  const listingJsonLd = activeCategory
+    ? {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+              { "@type": "ListItem", position: 2, name: "Shop", item: absoluteUrl("/products") },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: activeCategory.name,
+                item: absoluteUrl(categoryCanonical),
+              },
+            ],
+          },
+          {
+            "@type": "CollectionPage",
+            "@id": absoluteUrl(categoryCanonical),
+            url: absoluteUrl(categoryCanonical),
+            name: `${activeCategory.name} in Nigeria`,
+            description: activeCategory.description,
+            isPartOf: { "@type": "WebSite", name: settings.storeName, url: absoluteUrl("/") },
+            mainEntity: {
+              "@type": "ItemList",
+              numberOfItems: products.length,
+              itemListElement: products.map((product, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                url: absoluteUrl(`/products/${product.slug}`),
+                name: product.name,
+              })),
+            },
+          },
+        ],
+      }
+    : null;
   const activeTag = tag || undefined;
   const hasFilters = Boolean(q || categorySlug || tag || min || max || stockOnly);
   const filterParams = { q, category: categorySlug, tag, min, max, stock: stockOnly ? "1" : undefined, sort };
@@ -128,6 +203,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
 
   return (
     <div className="container-page py-8 lg:py-12">
+      {listingJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdString(listingJsonLd) }}
+        />
+      )}
+
       <nav className="mb-6 flex items-center gap-2 text-xs text-muted" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-ink">Home</Link>
         <span>/</span>

@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSettings } from "@/lib/settings";
+import { jsonLdString } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "FAQ",
-  description: "Answers to common questions about orders, delivery, returns and payments.",
+  title: "FAQ — Delivery, Payment & Returns in Nigeria",
+  description:
+    "Answers about delivery in Nigeria, Paystack payments, returns and orders from M&R Homes. Shop plants and home decor online with Abuja and Kano showrooms.",
+  keywords: [
+    "M&R Homes delivery",
+    "home decor delivery Nigeria",
+    "plants delivery Abuja",
+    "plants delivery Kano",
+    "Paystack home store Nigeria",
+  ],
+  alternates: { canonical: "/faq" },
 };
 
 const FAQS = [
@@ -52,9 +62,22 @@ const FAQS = [
 
 export default async function FaqPage() {
   const settings = await getSettings();
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
+  };
 
   return (
     <div className="container-page py-12 lg:py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(faqJsonLd) }}
+      />
       <div className="mx-auto max-w-3xl">
         <p className="eyebrow">Help centre</p>
         <h1 className="display mt-2 text-4xl font-semibold sm:text-5xl">Frequently asked questions</h1>
