@@ -18,6 +18,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
   const resetSuccess = params.reset === "1";
   const googleError = authErrorMessage(typeof params.error === "string" ? params.error : null);
   const isDev = process.env.NODE_ENV !== "production";
+  const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim());
 
   return (
     <div>
@@ -37,7 +38,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
       )}
 
       <div className="mt-7">
-        <LoginForm next={next} />
+        <LoginForm next={next} googleEnabled={googleEnabled} />
       </div>
 
       {isDev && process.env.ADMIN_EMAIL && (

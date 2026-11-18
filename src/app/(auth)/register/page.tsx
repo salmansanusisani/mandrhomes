@@ -14,6 +14,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Sea
   const session = await getSession();
   if (session) redirect(next);
   const googleError = authErrorMessage(typeof params.error === "string" ? params.error : null);
+  const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim());
 
   return (
     <div>
@@ -25,7 +26,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Sea
         </div>
       )}
       <div className="mt-7">
-        <RegisterForm next={next} />
+        <RegisterForm next={next} googleEnabled={googleEnabled} />
       </div>
     </div>
   );

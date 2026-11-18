@@ -85,7 +85,8 @@ function Feedback({ state }: { state: ActionState }) {
 }
 
 
-function GoogleButton({ next }: { next: string }) {
+function GoogleButton({ next, enabled }: { next: string; enabled: boolean }) {
+  if (!enabled) return null;
   return (
     <>
       <a href={`/api/auth/google?next=${encodeURIComponent(next)}`} className="btn-outline h-11 w-full">
@@ -98,7 +99,7 @@ function GoogleButton({ next }: { next: string }) {
   );
 }
 
-export function LoginForm({ next = "/account" }: { next?: string }) {
+export function LoginForm({ next = "/account", googleEnabled = false }: { next?: string; googleEnabled?: boolean }) {
   const [state, action] = useActionState(loginAction, null);
   const errors = state?.errors ?? {};
 
@@ -106,7 +107,7 @@ export function LoginForm({ next = "/account" }: { next?: string }) {
     <form action={action} className="space-y-4">
       <input type="hidden" name="next" value={next} />
       <Feedback state={state} />
-      <GoogleButton next={next} />
+      <GoogleButton next={next} enabled={googleEnabled} />
       <div>
         <label htmlFor="login-email" className="label">Email address</label>
         <input
@@ -133,7 +134,7 @@ export function LoginForm({ next = "/account" }: { next?: string }) {
   );
 }
 
-export function RegisterForm({ next = "/account" }: { next?: string }) {
+export function RegisterForm({ next = "/account", googleEnabled = false }: { next?: string; googleEnabled?: boolean }) {
   const [state, action] = useActionState(registerAction, null);
   const errors = state?.errors ?? {};
 
@@ -141,7 +142,7 @@ export function RegisterForm({ next = "/account" }: { next?: string }) {
     <form action={action} className="space-y-4">
       <input type="hidden" name="next" value={next} />
       <Feedback state={state} />
-      <GoogleButton next={next} />
+      <GoogleButton next={next} enabled={googleEnabled} />
       <div>
         <label htmlFor="register-name" className="label">Full name</label>
         <input id="register-name" name="name" autoComplete="name" className="input" placeholder="Ada Obi" required minLength={2} />
